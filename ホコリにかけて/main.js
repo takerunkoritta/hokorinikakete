@@ -1,5 +1,5 @@
 enchant();
-
+//test用コメントを記入
 
 window.onload = function() {
 
