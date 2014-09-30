@@ -1,4 +1,11 @@
 enchant();
+//修正点メモ
+//GameOverScene()のLabelの変更
+//Playerの操作-ジャンプをZキーに変更
+//openingSceneのキー入力をXに変更
+//当たり判定をより精密に
+//移動速度の変更
+
 
 
 window.onload = function() {
@@ -75,13 +82,13 @@ window.onload = function() {
 		label1.color = 'black';
 		label1.font  = "24px 'Consolas', 'Monaco', 'ＭＳ ゴシック'";
 
-		var label2 = new Label('push Z');
+		var label2 = new Label('push X');
 		label2.moveTo(400, 422);
 		label2.color = 'black';
 		label2.font  = "24px 'Consolas', 'Monaco', 'ＭＳ ゴシック'";
 
-		scene.addEventListener(Event.A_BUTTON_DOWN, function() {
-				game.replaceScene(createGameScene(posStage));
+		scene.addEventListener(Event.ENTER_FRAME, function() {
+				if(game.input.b) game.replaceScene(createGameScene(posStage));
 			});
 
 		scene.addChild(label1);
@@ -175,7 +182,7 @@ window.onload = function() {
 				var swit = new switchPanel(400, 290, player, scene);
 				var enemy = new Enemy(320, 282, player);
 
-				var label = new Label('移動(左右) : 十字キー(左右)<br>ジャンプ : 十字キー(上)<br>合体 : (仲間の近くで)Xキー')
+				var label = new Label('移動(左右) : 十字キー(左右)<br>ジャンプ : Zキー<br>合体 : (仲間の近くで)Xキー')
 				label.moveTo(0, 400);
 
 				scene.addChild(tlabel);
@@ -254,7 +261,7 @@ window.onload = function() {
 				scene.addChild(npc);
 				scene.addChild(swit);
 				scene.addChild(goal);
-				scene.addChild(enemy);
+				//scene.addChild(enemy);
 				scene.addChild(player);
 
 				return scene;
@@ -274,8 +281,8 @@ window.onload = function() {
 		gameOverImage.y = 100;
 
 		var label1 = new Label();
-		label1.text = 'Are you continue?'
-		label1.moveTo(150, 250);
+		label1.text = 'Continue?'
+		label1.moveTo(180, 250);
 		label1.color = 'black';
 		label1.font  = "18px 'Consolas', 'Monaco', 'ＭＳ ゴシック'";
 
@@ -343,88 +350,121 @@ window.onload = function() {
 
 
 		playerImage.addEventListener(Event.ENTER_FRAME, function(){
-			var ax = 0;
-			if(game.input.right) ax += 2;
-			if(game.input.left) ax -= 2;
 
-			if(ax > 0) playerImage.scaleX = 1;
-			if(ax < 0) playerImage.scaleX = -1;
+
+			if(game.input.right) playerImage.vx += 4;
+			if(game.input.left) playerImage.vx -= 4;
 
 			if(NPCFlag) {
 				playerImage.frame = 4;
 			}
 			else {
-				if (ax != 0) playerImage.frame = playerImage.age % 3;
+				if (playerImage.vx != 0) playerImage.frame = playerImage.age % 3;
 				else playerImage.frame = 0;
 			}
 
-			if (playerImage.vx > 1.0)
-				ax -= 1.0;
-			else if (playerImage.vx > 0)
-				ax -= playerImage.vx;
-			if (playerImage.vx < -1.0)
-				ax += 1.0;
-			else if (playerImage.vx < 0)
-				ax -= playerImage.vx;
+			if(playerImage.vx > 0) playerImage.scaleX = 1;
+			if(playerImage.vx < 0) playerImage.scaleX = -1;
 
-			if(game.input.up && !playerImage.jumping) {
-				playerImage.vy = -14;
-				playerImage.jumping = true;
-			}
-			playerImage.vy += 1.0;
 
-			playerImage.vx += ax;
-			playerImage.vx = Math.min(Math.max(playerImage.vx, -7), 7);
-			var dx = playerImage.x + playerImage.vx; //移動先
-			var dy = playerImage.y + playerImage.vy
 
-			if(map.hitTest(dx , dy)
-			|| map.hitTest(dx + playerImage.width -20, dy)
-			|| map.hitTest(dx + playerImage.width, dy + playerImage.height)
-			|| map.hitTest(dx , dy + playerImage.height)) {
-				dy = Math.floor(dy / 16) * 16;
-					playerImage.vy = 0;
-					playerImage.jumping = false;
+
+			if(playerImage.vx > 1) playerImage.vx -= 2;
+			else if(playerImage.vx > 0) playerImage.vx = 0;
+
+			if(playerImage.vx < -1) playerImage.vx += 2;
+			else if(playerImage.vx < 0) playerImage.vx = 0;
+
+
+			playerImage.vx = Math.min(Math.max(playerImage.vx, -5), 5);
+
+
+			if(playerImage.vx > 0) {
+				if((map.hitTest(playerImage.x + playerImage.width - 5, playerImage.y) == false)
+				&& (map.hitTest(playerImage.x + playerImage.width - 5, playerImage.y + playerImage.height - 3) == false)) {
+					playerImage.x += playerImage.vx;
 				}
+			}
 
-			if(dx > 12 && dx < 604){
-				if(map.hitTest(dx,dy) == 0)
-				{
-				playerImage.x = dx;
-				playerImage.y = dy;
+			else if(playerImage.vx < 0) {
+				if((map.hitTest(playerImage.x + 3, playerImage.y) == false) //左上
+				&& (map.hitTest(playerImage.x + 3, playerImage.y + playerImage.height - 3) == false )) {//左下
+					playerImage.x += playerImage.vx;
+				}
+			}
+
+
+			/*if(game.input.down) {
+				if((map.hitTest(playerImage.x + 8, playerImage.y + playerImage.height) == false)
+				&&(map.hitTest(playerImage.x + playerImage.width - 9, playerImage.y + playerImage.height) == false)) {
+					playerImage.y += 4;
 			}
 		}
 
 
 
-/*			if(ax > 0) {
-				if(map.hitTest(dx + playerImage.width + 10, playerImage.y)
-				|| map.hitTest(dx + playerImage.width + 10, playerImage.y + 16)
-				|| map.hitTest(dx + playerImage.width + 10, playerImage.y + 32)) {
-					if(dx > 12 && dx < 604){
-						playerImage.x = dx;
-					}
+			if(game.input.up) {
+				if((map.hitTest(playerImage.x + playerImage.width - 7, playerImage.y) == false)
+				&& (map.hitTest(playerImage.x +5, playerImage.y) == false)) {
+					playerImage.y -= 4;
 				}
-			}
-
-			if(ax < 0) {
-				if(map.hitTest(dx + 10, playerImage.y)
-				|| map.hitTest(dx + 10, playerImage.y - 16)
-				|| map.hitTest(dx + 10, playerImage.y - 32)) {
-					if(dx > 12 && dx < 604){
-						playerImage.x = dx;
-					}
-				}
-			}
-
-			if(map.hitTest(dx + 10, dy + 10)) {
-				playerImage.y = dy;
 			}*/
+
+
+			if(game.input.a && !playerImage.jumping) {
+				playerImage.vy = -12;
+				playerImage.jumping = true;
+			}
+
+			playerImage.vy += 1;
+
+			if(playerImage.vy < 0) {
+				if((map.hitTest(playerImage.x + playerImage.width - 7, playerImage.y) == false)
+				&& (map.hitTest(playerImage.x +5, playerImage.y) == false)){
+					playerImage.y += playerImage.vy;
+				}
+				else playerImage.vy = 0;
+			}
+
+			else if(playerImage.vy > 0) {
+				playerImage.vy = Math.min(playerImage.vy, 8)
+
+				if((map.hitTest(playerImage.x + 8, playerImage.y + playerImage.height + playerImage.vy - 1) == false)
+				&&(map.hitTest(playerImage.x + playerImage.width - 9, playerImage.y + playerImage.height + playerImage.vy - 1) == false)) {
+					playerImage.y += playerImage.vy;
+				}
+
+				else if(playerImage.vy > 6) {
+					playerImage.y += 5;
+					playerImage.vy = 0;
+					playerImage.jumping = false;
+				}
+
+				else if(playerImage.vy > 4) {
+					playerImage.y += 3;
+					playerImage.vy = 0;
+					playerImage.jumping = false;
+				}
+
+				else if(playerImage.vy > 2) {
+					playerImage.y += 1;
+					playerImage.vy = 0;
+					playerImage.jumping = false;
+				}
+
+				else {
+					playerImage.vy = 0;
+					playerImage.jumping = false;
+				}
+
+
+
+			}
+
 
 
 
 		});
-
 
 		return playerImage;
 	}
