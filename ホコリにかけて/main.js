@@ -11,13 +11,17 @@ enchant();
 //キーの変更
 //当たり判定がイマイチ(未修正)
 
+//修正点メモ-2014.10.07-
+//fpsを30に変更
+//当たり判定をより精密に
+
 
 
 window.onload = function() {
 
 	var game = new Game(640, 480);
 	game.preload('title.png', 'chara1.png', 'start.png','map2.png','opening.png','black.png','clear.png','gameover.png','goal.png','switchPanel.png', 'open.png','chara6.png','swi.png');
-	game.fps = 24;
+	game.fps = 30;
 
 
 	var posStage = 1; //現在のステージ
@@ -438,15 +442,17 @@ window.onload = function() {
 			//当たり判定
 			//左右
 			if(playerImage.vx > 0) {
-				if((map.hitTest(playerImage.x + playerImage.width - 5, playerImage.y) == false)
-				&& (map.hitTest(playerImage.x + playerImage.width - 5, playerImage.y + playerImage.height - 3) == false)) {
+				if((map.hitTest(playerImage.x + playerImage.vx + 24, playerImage.y + 4) == false)
+				&&(map.hitTest(playerImage.x + playerImage.vx + 24, playerImage.y + 16) == false)
+				&&(map.hitTest(playerImage.x + playerImage.vx + 24, playerImage.y + 28) == false)){
 					playerImage.x += playerImage.vx;
 				}
 			}
 
 			else if(playerImage.vx < 0) {
-				if((map.hitTest(playerImage.x + 3, playerImage.y) == false) //左上
-				&& (map.hitTest(playerImage.x + 3, playerImage.y + playerImage.height - 3) == false )) {//左下
+				if((map.hitTest(playerImage.x + playerImage.vx + 8, playerImage.y + 4) == false)
+				&&(map.hitTest(playerImage.x + playerImage.vx + 8, playerImage.y + 16) == false)
+				&&(map.hitTest(playerImage.x + playerImage.vx + 8, playerImage.y + 28) == false)) {
 					playerImage.x += playerImage.vx;
 				}
 			}
@@ -462,8 +468,9 @@ window.onload = function() {
 			//当たり判定
 			//上下
 			if(playerImage.vy < 0) {
-				if((map.hitTest(playerImage.x + playerImage.width - 7, playerImage.y) == false)
-				&& (map.hitTest(playerImage.x +5, playerImage.y) == false)){
+				if((map.hitTest(playerImage.x + 16, playerImage.y + playerImage.vy + 10) == false)
+				&&(map.hitTest(playerImage.x + 24, playerImage.y + playerImage.vy + 10) == false)
+				&&(map.hitTest(playerImage.x + 8, playerImage.y + playerImage.vy + 10) == false)) {
 					playerImage.y += playerImage.vy;
 				}
 				else playerImage.vy = 0;
@@ -472,27 +479,13 @@ window.onload = function() {
 			else if(playerImage.vy > 0) {
 				playerImage.vy = Math.min(playerImage.vy, 8)
 
-				if((map.hitTest(playerImage.x + 8, playerImage.y + playerImage.height + playerImage.vy - 1) == false)
-				&&(map.hitTest(playerImage.x + playerImage.width - 9, playerImage.y + playerImage.height + playerImage.vy - 1) == false)) {
+				if((map.hitTest(playerImage.x + 16, playerImage.y + playerImage.vy + 32) == false)
+				&&(map.hitTest(playerImage.x + 24, playerImage.y + playerImage.vy + 32) == false)
+				&&(map.hitTest(playerImage.x + 8, playerImage.y + playerImage.vy + 32) == false)) {
 					playerImage.y += playerImage.vy;
-				}
+					playerImage.vy += 1;
 
-				else if(playerImage.vy > 6) {
-					playerImage.y += 5;
-					playerImage.vy = 0;
-					playerImage.jumping = false;
-				}
 
-				else if(playerImage.vy > 4) {
-					playerImage.y += 3;
-					playerImage.vy = 0;
-					playerImage.jumping = false;
-				}
-
-				else if(playerImage.vy > 2) {
-					playerImage.y += 1;
-					playerImage.vy = 0;
-					playerImage.jumping = false;
 				}
 
 				else {
